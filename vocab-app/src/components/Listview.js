@@ -40,13 +40,25 @@ export default function Listview() {
   }, []);
 
   // Open WordReference
-  const goToWordReference = (word) => {
-    window.open(`https://www.wordreference.com/fren/${encodeURIComponent(word)}`, '_blank');
+  const goToWordReference = (w) => {
+    updateViewCount(w);
+    window.open(`https://www.wordreference.com/fren/${encodeURIComponent(w.word)}`, '_blank');
   };
 
   const goToConjugation = (word) => {
     window.open(`https://www.wordreference.com/conj/frverbs.aspx?v=${encodeURIComponent(word)}`, '_blank');
   };
+
+  async function updateViewCount(word) {
+    setWords(words.map(w => 
+    w.id == word.id ? { ...w, view_count: w.view_count + 1 } : w));
+    const { error } = await supabase
+    .from('user_words')
+    .update({ view_count: word.view_count + 1 })
+    .eq('id', word.id);
+
+  if (error) console.log('Failed to update view count:', error);
+  } 
 
   return (
     <div>
@@ -64,29 +76,30 @@ export default function Listview() {
           {words.map((w) => {
             const cat = categories[w.category_id];
             const shortNote = w.notes?.length > 20 ? w.notes.slice(0, 20) + '...' : w.notes;
+            const isVerb = cat?.name?.toLowerCase().includes('verb');
 
             return (
               <tr key={w.id}>
                 <td>
                   <span
                     style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                    onClick={() => goToWordReference(w.word)}
+                    onClick={() => goToWordReference(w)}
                   >
                     {w.word}
                   </span>
                   {' - '}
-                  <span
-                    style={{ cursor: 'pointer', color: 'green', textDecoration: 'underline' }}
-                    onClick={() => {
-                      if (cat?.name?.toLowerCase().includes('verb')) {
-                        goToConjugation(w.word);
-                      } else {
-                        goToWordReference(w.word);
-                      }
-                    }}
-                  >
-                    {cat?.abbreviation || ''}
-                  </span>
+                 <span
+                 style={{
+                    cursor: isVerb ? 'pointer' : 'default',
+                     color: isVerb ? 'green' : 'black',
+                     textDecoration: isVerb ? 'underline' : 'none'
+                     }}
+                      onClick={() => {
+                        if (isVerb) goToConjugation(w.word);
+                        }}
+>
+  {cat?.abbreviation || ''}
+</span>
                 </td>
                 <td>{w.view_count}</td>
                 <td>{shortNote}</td>
