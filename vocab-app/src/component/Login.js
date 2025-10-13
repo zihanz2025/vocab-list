@@ -1,0 +1,41 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Paper, TextInput, PasswordInput, Button, Text, Title, Stack } from '@mantine/core';
+import { supabase } from '../supaBaseClient';
+
+export default function Login({}) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+
+    if (error) alert(error.message);
+    else {
+      navigate('/list');
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background:'linear-gradient(180deg, #f0f9ff 0%, #e0f7fa 100%)' }}>
+      <Paper withBorder shadow="sm" radius="md" p="xl" style={{ width: 340, textAlign: 'center', backgroundColor: 'white' }}>
+        <Title order={2} mb="md">Login</Title>
+        <form onSubmit={handleLogin}>
+          <Stack>
+            <TextInput label="" placeholder="Email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} required />
+            <PasswordInput label="" placeholder="Password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} required />
+            <Button type="submit" size="md">Log in</Button>
+          </Stack>
+        </form>
+        <Text size="sm" mt="md">
+          Don’t have an account? <Link to="/signup">Sign up</Link>
+        </Text>
+      </Paper>
+    </div>
+  );
+}
