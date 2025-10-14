@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/le-vocabulaire/static/css/main.223233b6.css",
+    "main.js": "/le-vocabulaire/static/js/main.3a876902.js",
+    "static/js/453.6ecb9268.chunk.js": "/le-vocabulaire/static/js/453.6ecb9268.chunk.js",
+    "index.html": "/le-vocabulaire/index.html",
+    "main.223233b6.css.map": "/le-vocabulaire/static/css/main.223233b6.css.map",
+    "main.3a876902.js.map": "/le-vocabulaire/static/js/main.3a876902.js.map",
+    "453.6ecb9268.chunk.js.map": "/le-vocabulaire/static/js/453.6ecb9268.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.223233b6.css",
+    "static/js/main.3a876902.js"
+  ]
+}
