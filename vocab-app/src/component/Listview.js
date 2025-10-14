@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
+import WordSearch from './wordSearch';
 import {
   Table,
   Paper,
@@ -19,7 +20,12 @@ export default function Listview({ onLogout }) {
   const [categories, setCategories] = useState({});
   const [selectedWord, setSelectedWord] = useState(null);
   const [addingWord, setAddingWord] = useState(false);
+  const [highlightedId, setHighlightedId] = useState(null);
+  const scrollAreaRef = useRef(null);
+  const rowRefs = useRef({});
+  
 
+  
   // Fetch words
   useEffect(() => {
     async function fetchWords() {
@@ -43,11 +49,11 @@ export default function Listview({ onLogout }) {
         setCategories(map);
       }
     }
-
     fetchCategories();
     fetchWords();
   }, []);
 
+  //click on word go to definition page on wordreference.com
   const goToWordReference = (w) => {
     updateViewCount(w);
     window.open(
@@ -56,15 +62,15 @@ export default function Listview({ onLogout }) {
     );
   };
 
+  //click on verb category go to conjugation page on wordreference.com
   const goToConjugation = (word) => {
     window.open(
-      `https://www.wordreference.com/conj/frverbs.aspx?v=${encodeURIComponent(
-        word
-      )}`,
+      `https://www.wordreference.com/conj/frverbs.aspx?v=${encodeURIComponent(word)}`,
       '_blank'
     );
   };
 
+  //each click to view word details increase view count by 1
   async function updateViewCount(word) {
     setWords(
       words.map((w) =>
@@ -79,6 +85,7 @@ export default function Listview({ onLogout }) {
     if (error) console.log('Failed to update view count:', error);
   }
 
+  //exposed fetch function to refresh words after add/edit
   async function refreshWords() {
       const { data, error } = await supabase
         .from('user_words')
@@ -88,6 +95,33 @@ export default function Listview({ onLogout }) {
       if (error) console.log(error);
       else setWords(data);
     }
+
+  //locate and highlight searched word in the list
+  async function locateWord(wordToFind) {
+    const target = words.find(
+    (w) => w.word.toLowerCase() === wordToFind.toLowerCase()
+  );
+  if (!target) return false;
+  updateViewCount(target)
+  const rowEl = rowRefs.current[target.id];
+  if (rowEl && scrollAreaRef.current) {
+    rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  // persist highlight
+  setHighlightedId(target.id);
+  return true;
+}
+useEffect(() => {
+  const handleScroll = () => setHighlightedId(null);
+  if (scrollAreaRef.current) {
+    scrollAreaRef.current.addEventListener('scroll', handleScroll);
+  }
+  return () => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.removeEventListener('scroll', handleScroll);
+    }
+  };
+}, []);
 
   return (
     <div
@@ -100,18 +134,21 @@ export default function Listview({ onLogout }) {
       }}
     >
       <Container size="lg" style={{ width: '80%' }}>
-        <Group position="apart" mb="md">
-          <Title order={2}>Your Vocabulary List</Title>
-          <Button color="cyan" onClick={() => setAddingWord(true)}>
-            Add Word
-          </Button>
+        <Group justify="space-between" mb="md">
+          <Title order={2}>My Vocabulary List</Title>
           <Button color="cyan" variant="outline" onClick={onLogout}>
             Logout
           </Button>
         </Group>
+        <Group justify="space-between" preventGrowOverflow ="true" mb="md">
+          <Button color="cyan" onClick={() => setAddingWord(true)}>
+            Add Word
+          </Button>
+          <WordSearch words={words} onLocateWord={locateWord} />
+        </Group>
 
         <Paper shadow="sm" p="md" radius="md">
-          <ScrollArea style={{ height: 500 }}>
+          <ScrollArea ref={scrollAreaRef} style={{ height: 500 }}>
             <Table highlightOnHover verticalSpacing="sm">
               <thead>
                 <tr>
@@ -131,7 +168,14 @@ export default function Listview({ onLogout }) {
                   const isVerb = cat?.name?.toLowerCase().includes('verb');
 
                   return (
-                    <tr key={w.id}>
+                    <tr
+                      key={w.id}
+                      ref={(el) => (rowRefs.current[w.id] = el)}
+                      style={{
+                        backgroundColor: highlightedId === w.id ? '#e0f7fa' : 'transparent',
+                        transition: 'background-color 0.3s',
+                      }}
+                    >
                       <td style={{ textAlign: 'left' }}>
                         <Text
                           component="span"
