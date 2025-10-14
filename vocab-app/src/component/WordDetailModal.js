@@ -51,7 +51,9 @@ export default function WordDetailModal({ word, categories, onClose, onUpdated }
         placeholder="Add your note..."
         value={notes}
         onChange={(e) => setNote(e.currentTarget.value)}
-        minRows={4}
+        autosize
+        minRows={10}
+        maxRows={20}
         mb="sm"
       />
       <Group position="right">

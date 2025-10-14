@@ -58,7 +58,9 @@ export default function AddWordModal({ categories, onClose, onAdded }) {
         placeholder="Optional note"
         value={notes}
         onChange={(e) => setNotes(e.currentTarget.value)}
-        minRows={3}
+        autosize
+        minRows={10}
+        maxRows={20}
         mb="sm"
       />
       <Group position="right">

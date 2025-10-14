@@ -3,17 +3,8 @@ import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
 import WordSearch from './wordSearch';
-import {
-  Table,
-  Paper,
-  Button,
-  Group,
-  Text,
-  Title,
-  Container,
-  ScrollArea,
-  Box,
-} from '@mantine/core';
+import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip} from '@mantine/core';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 export default function Listview({ onLogout }) {
   const [words, setWords] = useState([]);
@@ -21,6 +12,7 @@ export default function Listview({ onLogout }) {
   const [selectedWord, setSelectedWord] = useState(null);
   const [addingWord, setAddingWord] = useState(false);
   const [highlightedId, setHighlightedId] = useState(null);
+  const [expandedRows, setExpandedRows] = useState(new Set());
   const scrollAreaRef = useRef(null);
   const rowRefs = useRef({});
   
@@ -70,6 +62,16 @@ export default function Listview({ onLogout }) {
     );
   };
 
+  //expandable rows logic to show full note
+  const toggleRow = (id) => {
+  setExpandedRows((prev) => {
+    const newSet = new Set(prev);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    return newSet;
+  });
+};
+
   //each click to view word details increase view count by 1
   async function updateViewCount(word) {
     setWords(
@@ -111,6 +113,8 @@ export default function Listview({ onLogout }) {
   setHighlightedId(target.id);
   return true;
 }
+
+//cancel hightlight on scroll
 useEffect(() => {
   const handleScroll = () => setHighlightedId(null);
   if (scrollAreaRef.current) {
@@ -152,7 +156,7 @@ useEffect(() => {
             <Table highlightOnHover verticalSpacing="sm">
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left' }}>Word - Category</th>
+                  <th style={{ textAlign: 'left' }}>Word</th>
                   <th style={{ textAlign: 'left' }}>Views</th>
                   <th style={{ textAlign: 'left' }}>Note</th>
                   <th></th> {/* Button column */}
@@ -162,8 +166,8 @@ useEffect(() => {
                 {words.map((w) => {
                   const cat = categories[w.category_id];
                   const shortNote =
-                    w.notes?.length > 20
-                      ? w.notes.slice(0, 20) + '...'
+                    w.notes?.length > 50
+                      ? w.notes.slice(0, 50) + '...'
                       : w.notes;
                   const isVerb = cat?.name?.toLowerCase().includes('verb');
 
@@ -174,12 +178,13 @@ useEffect(() => {
                       style={{
                         backgroundColor: highlightedId === w.id ? '#e0f7fa' : 'transparent',
                         transition: 'background-color 0.3s',
+                        borderBottom: '1px solid #e0e0e0',
                       }}
                     >
-                      <td style={{ textAlign: 'left' }}>
+                      <td style={{ textAlign: 'left' ,width : "20%"}}>
                         <Text
                           component="span"
-                          color="blue"
+                          c="blue"
                           underline
                           sx={{ cursor: 'pointer' }}
                           onClick={() => goToWordReference(w)}
@@ -189,7 +194,7 @@ useEffect(() => {
                         {' - '}
                         <Text
                           component="span"
-                          color={isVerb ? 'green' : 'dimmed'}
+                          c={isVerb ? 'green' : 'dimmed'}
                           underline={isVerb}
                           sx={{ cursor: isVerb ? 'pointer' : 'default' }}
                           onClick={() => {
@@ -199,18 +204,32 @@ useEffect(() => {
                           {cat?.abbreviation || ''}
                         </Text>
                       </td>
-                      <td style={{ textAlign: 'left' }}>{w.view_count}</td>
-                      <td style={{ textAlign: 'left' }}>{shortNote}</td>
-                      <td>
-                        <Button
-                          size="xs"
+                      <td style={{ textAlign: 'left' ,width : "5%"}}>{w.view_count}</td>
+                      <td style={{ textAlign: 'left', cursor: 'pointer' , width : "60%", padding: '8px 16px'}} onClick={() => toggleRow(w.id)}>
+                        {expandedRows.has(w.id) ? w.notes : shortNote}
+                        </td>
+                      <td style={{width : "15%"}}>
+                        <Group justify="flex-end" gap="0.5rem">
+                          <Tooltip label="Edit">
+                          <ActionIcon
                           color="cyan"
                           variant="light"
                           onClick={() => setSelectedWord(w)}
-                        >
-                          Edit / Detail
-                        </Button>
-                      </td>
+                          >
+                            <IconEdit size={16} />
+                          </ActionIcon>
+                          </Tooltip>
+                          <Tooltip label="Delete">
+                          <ActionIcon
+                          color="cyan"
+                          variant="light"
+                          onClick={() => setSelectedWord(w)}
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                          </Tooltip>
+                          </Group >
+                        </td>
                     </tr>
                   );
                 })}
