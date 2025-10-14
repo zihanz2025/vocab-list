@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Autocomplete,TextInput, Box, ScrollArea, Paper, Text } from '@mantine/core';
+import { Autocomplete } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 
-export default function WordSearch({ words, onLocateWord }) {
+export default function WordSearch({ words, allWords, onLocateWord }) {
   const [value, setValue] = useState('');
 
   // Compute filtered suggestions
@@ -10,29 +10,28 @@ export default function WordSearch({ words, onLocateWord }) {
     .filter((w) => w.word.toLowerCase().includes(value.toLowerCase()))
     .map((w) => w.word);
 
-  const hasExactMatch = words.some(
+  const hasExactMatchInCurrent = words.some(
     (w) => w.word.toLowerCase() === value.toLowerCase()
   );
 
-  // Add search option if not an exact match
+  const existsInAll = allWords.some(
+    (w) => w.word.toLowerCase() === value.toLowerCase()
+  );
+
+  // Build dropdown data
   const data =
     value.trim() === ''
       ? []
-      : hasExactMatch
+      : hasExactMatchInCurrent
       ? filteredWords
-      : [...filteredWords, `🔍 Search “${value}” on WordReference`];
+      : existsInAll
+      ? [...filteredWords, `→ Locate "${value}" in all words`]
+      : [...filteredWords, `→ Search "${value}" on WordReference`];
 
   const handleSearch = () => {
-    const match = words.find(
-      (w) => w.word.toLowerCase() === value.toLowerCase()
-    );
+    const match = words.find((w) => w.word.toLowerCase() === value.toLowerCase());
     if (match) {
       onLocateWord(match.word);
-    } else if (value.trim() !== '') {
-      window.open(
-        `https://www.wordreference.com/fren/${encodeURIComponent(value)}`,
-        '_blank'
-      );
     }
   };
 
@@ -50,14 +49,21 @@ export default function WordSearch({ words, onLocateWord }) {
         if (e.key === 'Enter') handleSearch();
       }}
       onOptionSubmit={(option) => {
-        if (option.startsWith('🔍')) {
+        if (option.startsWith('→ Locate')) {
+          // locate in allWords (full list)
+          const match = allWords.find(
+            (w) => w.word.toLowerCase() === value.toLowerCase()
+          );
+          if (match) onLocateWord(match.word, { overrideFilter: true });
+        } else if (option.startsWith('→ Search')) {
+          // fallback to WordReference
           window.open(
             `https://www.wordreference.com/fren/${encodeURIComponent(value)}`,
             '_blank'
           );
         } else {
           const match = words.find((w) => w.word === option);
-          if (match) onLocateWord(match.word);
+          if (match) onLocateWord(match.word,{ overrideFilter: false });
         }
       }}
       styles={{

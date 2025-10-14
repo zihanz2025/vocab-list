@@ -4,7 +4,7 @@ import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
 import WordSearch from './SearchBar';
-import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip, Select} from '@mantine/core';
+import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid} from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 export default function Listview() {
@@ -16,6 +16,7 @@ export default function Listview() {
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [sortField, setSortField] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const scrollAreaRef = useRef(null);
   const rowRefs = useRef({});
   
@@ -45,6 +46,33 @@ export default function Listview() {
     fetchCategories();
     fetchWords();
   }, []);
+
+  //filter by categories
+  let categoryOptions = [
+  { value: 'noms', label: 'nom' },
+  ...Object.values(categories).map((c) => ({
+    value: c.name.toLowerCase(),
+    label: c.name,
+  })),
+  ];
+  categoryOptions.sort((a, b) => a.label.localeCompare(b.label, 'fr'));
+  categoryOptions.unshift({ value: 'all', label: 'All Words' });
+  const filteredWords = (() => {
+  if (selectedCategory === 'all') return words;
+  if (selectedCategory === 'noms') {
+    return words.filter((w) => {
+      const cat = categories[w.category_id]?.name?.toLowerCase();
+      return cat && cat.includes('nom') && cat !=='prenom';
+    });
+  }
+
+  return words.filter((w) => {
+    const cat = categories[w.category_id]?.name?.toLowerCase();
+    return cat === selectedCategory;
+  });
+})();
+
+
 
   //click on word go to definition page on wordreference.com
   const goToWordReference = (w) => {
@@ -105,11 +133,15 @@ export default function Listview() {
 
 
   //locate and highlight searched word in the list
-  async function locateWord(wordToFind) {
+  async function locateWord(wordToFind, options = {}) {
     const target = words.find(
     (w) => w.word.toLowerCase() === wordToFind.toLowerCase()
   );
   if (!target) return false;
+  // if overrideFilter is true, reset category to 'all'
+  if (options.overrideFilter) {
+    setSelectedCategory('all');
+  }
   updateViewCount(target)
   const rowEl = rowRefs.current[target.id];
   if (rowEl && scrollAreaRef.current) {
@@ -193,11 +225,14 @@ useEffect(() => {
 
           </Group>
         </Group>
-        <Group justify="flex-end" preventGrowOverflow ="true" mb="md">
-          <Button onClick={() => setAddingWord(true)}>
+        <Grid mb="sm">
+          <Grid.Col span="content">
+            <Button onClick={() => setAddingWord(true)}>
             Add Word
           </Button>
-          <Select
+          </Grid.Col>
+          <Grid.Col span="content">
+            <Select
           value={`${sortField}-${sortOrder}`}
           onChange={(value) => {
             const [field, order] = value.split('-');
@@ -215,8 +250,19 @@ useEffect(() => {
           size="sm"
           radius="md"
           />
-          <WordSearch words={words} onLocateWord={locateWord} />
-        </Group>
+          </Grid.Col>
+          <Grid.Col span="content">
+            <Select
+            data={categoryOptions}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            styles={{ root: { minWidth: '220px' } }}
+            />
+          </Grid.Col>
+           <Grid.Col span="auto">
+            <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
+           </Grid.Col>
+        </Grid>
 
         <Paper shadow="sm" p="md" radius="md">
           <ScrollArea viewportRef={scrollAreaRef} style={{ height: 500 }}>
@@ -232,7 +278,7 @@ useEffect(() => {
                 </tr>
               </thead>
               <tbody>
-                {words.map((w) => {
+                {filteredWords.map((w) => {
                   const cat = categories[w.category_id];
                   const shortNote =
                     w.notes?.length > 50
