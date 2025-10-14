@@ -4,7 +4,7 @@ import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
 import WordSearch from './SearchBar';
-import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip} from '@mantine/core';
+import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip, Select} from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 export default function Listview() {
@@ -14,6 +14,8 @@ export default function Listview() {
   const [addingWord, setAddingWord] = useState(false);
   const [highlightedId, setHighlightedId] = useState(null);
   const [expandedRows, setExpandedRows] = useState(new Set());
+  const [sortField, setSortField] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
   const scrollAreaRef = useRef(null);
   const rowRefs = useRef({});
   
@@ -23,7 +25,7 @@ export default function Listview() {
       const { data, error } = await supabase
         .from('user_words')
         .select('id, word, view_count, notes, category_id, created_at')
-        .order('created_at', { ascending: false });
+        .order(sortField, { ascending: sortOrder === 'asc' });
 
       if (error) console.log(error);
       else setWords(data);
@@ -91,11 +93,16 @@ export default function Listview() {
       const { data, error } = await supabase
         .from('user_words')
         .select('id, word, view_count, notes, category_id, created_at')
-        .order('created_at', { ascending: false });
+        .order(sortField, { ascending: sortOrder === 'asc' });
 
       if (error) console.log(error);
       else setWords(data);
-    }
+  }
+  //refrensh when sorting method changes
+  useEffect(() => {
+    refreshWords();
+  }, [sortField, sortOrder]);
+
 
   //locate and highlight searched word in the list
   async function locateWord(wordToFind) {
@@ -190,6 +197,24 @@ useEffect(() => {
           <Button onClick={() => setAddingWord(true)}>
             Add Word
           </Button>
+          <Select
+          value={`${sortField}-${sortOrder}`}
+          onChange={(value) => {
+            const [field, order] = value.split('-');
+            setSortField(field);
+            setSortOrder(order);
+          }}
+          data={[
+            { value: 'created_at-desc', label: 'Date Added (Newest)' },
+            { value: 'created_at-asc', label: 'Date Added (Oldest)' },
+            { value: 'word-asc', label: 'Alphabetical (A–Z)' },
+            { value: 'view_count-desc', label: 'Views (Most)' },
+            { value: 'view_count-asc', label: 'Views (Least)' },
+          ]}
+          placeholder="Sort by"
+          size="sm"
+          radius="md"
+          />
           <WordSearch words={words} onLocateWord={locateWord} />
         </Group>
 
