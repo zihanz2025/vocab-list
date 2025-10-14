@@ -15,19 +15,22 @@ export default function Welcome() {
       <Container size={480} px="md">
         <Paper withBorder shadow="sm" radius="md" p="xl" style={{ textAlign: 'center' }}>
           <Title order={1} mb="sm">
-            Welcome to VocabList
+            Le Vocabulaire
           </Title>
 
           <Text size="sm" c="dimmed" mb="md">
             Build your personalized French vocabulary list. <br />
-            Review, track, and expand your words easily.
+            Review, track, and expand easily.
           </Text>
 
           <Group justify="center" mt="xl">
+            <Button component={Link} to="/about" size="md">
+              About
+            </Button>
             <Button component={Link} to="/signup" size="md">
               Sign Up
             </Button>
-            <Button component={Link} to="/login" size="md" variant="outline">
+            <Button component={Link} to="/login" size="md">
               Login
             </Button>
           </Group>

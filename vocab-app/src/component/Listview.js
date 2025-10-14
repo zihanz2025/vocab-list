@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
-import WordSearch from './wordSearch';
+import WordSearch from './SearchBar';
 import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip} from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
-export default function Listview({ onLogout }) {
+export default function Listview() {
   const [words, setWords] = useState([]);
   const [categories, setCategories] = useState({});
   const [selectedWord, setSelectedWord] = useState(null);
@@ -16,14 +17,12 @@ export default function Listview({ onLogout }) {
   const scrollAreaRef = useRef(null);
   const rowRefs = useRef({});
   
-
-  
-  // Fetch words
+  // Fetch words on initialization
   useEffect(() => {
     async function fetchWords() {
       const { data, error } = await supabase
         .from('user_words')
-        .select('id, word, view_count, notes, category_id')
+        .select('id, word, view_count, notes, category_id, created_at')
         .order('created_at', { ascending: false });
 
       if (error) console.log(error);
@@ -54,7 +53,7 @@ export default function Listview({ onLogout }) {
     );
   };
 
-  //click on verb category go to conjugation page on wordreference.com
+  //click on verb category to go to conjugation page on wordreference.com
   const goToConjugation = (word) => {
     window.open(
       `https://www.wordreference.com/conj/frverbs.aspx?v=${encodeURIComponent(word)}`,
@@ -91,7 +90,7 @@ export default function Listview({ onLogout }) {
   async function refreshWords() {
       const { data, error } = await supabase
         .from('user_words')
-        .select('id, word, view_count, notes, category_id')
+        .select('id, word, view_count, notes, category_id, created_at')
         .order('created_at', { ascending: false });
 
       if (error) console.log(error);
@@ -114,18 +113,55 @@ export default function Listview({ onLogout }) {
   return true;
 }
 
+// inside Listview component
+async function deleteWord(word) {
+  const confirmDelete = window.confirm("Are you sure you want to delete this word?");
+  if (!confirmDelete) return;
+
+  const { error } = await supabase
+    .from('user_words')
+    .delete()
+    .eq('id', word.id);
+
+  if (error) {
+    console.log("Failed to delete word:", error);
+  } else {
+    // remove the word from local state so UI updates immediately
+    setWords(words.filter(w => w.id !== word.id));
+  }
+}
+
+
 //cancel hightlight on scroll
 useEffect(() => {
   const handleScroll = () => setHighlightedId(null);
-  if (scrollAreaRef.current) {
-    scrollAreaRef.current.addEventListener('scroll', handleScroll);
+  const viewport = scrollAreaRef.current;
+  if (viewport) {
+    viewport.addEventListener('scroll', handleScroll);
   }
   return () => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.removeEventListener('scroll', handleScroll);
+    if (viewport) {
+      viewport.removeEventListener('scroll', handleScroll);
     }
   };
 }, []);
+
+// Logout function
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.log('Logout failed:', error);
+    else {
+      // Clear state
+      setWords([]);
+      setCategories({});
+      setSelectedWord(null);
+      setAddingWord(false);
+      setHighlightedId(null);
+      setExpandedRows(new Set());
+
+      window.location.href = '/';
+    }
+  };
 
   return (
     <div
@@ -140,25 +176,33 @@ useEffect(() => {
       <Container size="lg" style={{ width: '80%' }}>
         <Group justify="space-between" mb="md">
           <Title order={2}>My Vocabulary List</Title>
-          <Button color="cyan" variant="outline" onClick={onLogout}>
+          <Group>
+            <Button component={Link} to="/about">
+              About
+            </Button>
+          <Button onClick={handleLogout}>
             Logout
           </Button>
+
+          </Group>
         </Group>
-        <Group justify="space-between" preventGrowOverflow ="true" mb="md">
-          <Button color="cyan" onClick={() => setAddingWord(true)}>
+        <Group justify="flex-end" preventGrowOverflow ="true" mb="md">
+          <Button onClick={() => setAddingWord(true)}>
             Add Word
           </Button>
           <WordSearch words={words} onLocateWord={locateWord} />
         </Group>
 
         <Paper shadow="sm" p="md" radius="md">
-          <ScrollArea ref={scrollAreaRef} style={{ height: 500 }}>
+          <ScrollArea viewportRef={scrollAreaRef} style={{ height: 500 }}>
             <Table highlightOnHover verticalSpacing="sm">
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left' }}>Word</th>
-                  <th style={{ textAlign: 'left' }}>Views</th>
+                  <th></th> {/* Category column */}
                   <th style={{ textAlign: 'left' }}>Note</th>
+                  <th style={{ textAlign: 'left' }}>Views</th>
+                  <th style={{ textAlign: 'left' }}>Date Added</th>
                   <th></th> {/* Button column */}
                 </tr>
               </thead>
@@ -169,7 +213,8 @@ useEffect(() => {
                     w.notes?.length > 50
                       ? w.notes.slice(0, 50) + '...'
                       : w.notes;
-                  const isVerb = cat?.name?.toLowerCase().includes('verb');
+                  const isVerb = cat?.name?.toLowerCase()==='verbe';
+                  const dateCreated = w.created_at ? w.created_at.substring(0,10): ''
 
                   return (
                     <tr
@@ -179,9 +224,10 @@ useEffect(() => {
                         backgroundColor: highlightedId === w.id ? '#e0f7fa' : 'transparent',
                         transition: 'background-color 0.3s',
                         borderBottom: '1px solid #e0e0e0',
+                        margin: '4px 0',
                       }}
                     >
-                      <td style={{ textAlign: 'left' ,width : "20%"}}>
+                      <td style={{ textAlign: 'left' ,width : "15%"}}>
                         <Text
                           component="span"
                           c="blue"
@@ -191,7 +237,8 @@ useEffect(() => {
                         >
                           {w.word}
                         </Text>
-                        {' - '}
+                      </td>
+                      <td style={{ textAlign: 'left' ,width : "5%"}}>
                         <Text
                           component="span"
                           c={isVerb ? 'green' : 'dimmed'}
@@ -204,11 +251,14 @@ useEffect(() => {
                           {cat?.abbreviation || ''}
                         </Text>
                       </td>
-                      <td style={{ textAlign: 'left' ,width : "5%"}}>{w.view_count}</td>
-                      <td style={{ textAlign: 'left', cursor: 'pointer' , width : "60%", padding: '8px 16px'}} onClick={() => toggleRow(w.id)}>
+                      <td style={{ textAlign: 'left', cursor: 'pointer' , width : "55%", padding: '8px 16px'}} onClick={() => toggleRow(w.id)}>
                         {expandedRows.has(w.id) ? w.notes : shortNote}
+                      </td>
+                      <td style={{ textAlign: 'left' ,width : "5%"}}>{w.view_count}</td>
+                      <td style={{ textAlign: 'left', width: "10%"}}>
+                        {dateCreated}
                         </td>
-                      <td style={{width : "15%"}}>
+                      <td style={{width : "10%"}}>
                         <Group justify="flex-end" gap="0.5rem">
                           <Tooltip label="Edit">
                           <ActionIcon
@@ -223,7 +273,7 @@ useEffect(() => {
                           <ActionIcon
                           color="cyan"
                           variant="light"
-                          onClick={() => setSelectedWord(w)}
+                          onClick={() => deleteWord(w)}
                           >
                             <IconTrash size={16} />
                           </ActionIcon>

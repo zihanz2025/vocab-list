@@ -8,6 +8,7 @@ import Welcome from './component/Welcome';
 import Signup from './component/Signup';
 import Login from './component/Login';
 import Listview from './component/Listview';
+import About from './component/About';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -58,6 +59,10 @@ function App() {
           <Route
             path="/"
             element={user ? <Navigate to="/list" replace /> : <Welcome />}
+          />
+          <Route
+            path="about"
+            element={<About />}
           />
           <Route
             path="/signup"
