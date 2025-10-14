@@ -29,21 +29,21 @@ function App() {
     <MantineProvider
   theme={{
     colors: {
-      ocean: [
-        '#e6fefc', // very light, almost white
-        '#b3f4eb',
-        '#81e9db',
-        '#4fded0', // soft greenish-blue
-        '#29d6c8',
-        '#00cfc0', // base ocean green-blue
-        '#00bfb0',
-        '#00a999',
-        '#009380',
-        '#006f60', // darkest
+      mode: [
+        "#FFFFFF", // white
+        "#E3E3E3",
+        "#C7C7C7",
+        "#ABABAB",
+        "#8F8F8F",
+        "#666565ff",
+        "#575757",
+        "#3B3B3B",
+        "#1F1F1F",
+        "#000000"  // black
       ],
     },
-    primaryColor: 'ocean',
-    defaultRadius: 'md',
+    primaryColor: 'mode',
+    defaultRadius: 'xs',
   }}
   defaultColorScheme="light"
 >

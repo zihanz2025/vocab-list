@@ -9,7 +9,7 @@ export default function Welcome() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f7fa 100%)',
+        background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)',
       }}
     >
       <Container size={480} px="md">
@@ -24,13 +24,13 @@ export default function Welcome() {
           </Text>
 
           <Group justify="center" mt="xl">
-            <Button component={Link} to="/about" size="md">
+            <Button component={Link} to="/about" size="md" >
               About
             </Button>
-            <Button component={Link} to="/signup" size="md">
+            <Button component={Link} to="/signup" size="md" >
               Sign Up
             </Button>
-            <Button component={Link} to="/login" size="md">
+            <Button component={Link} to="/login" size="md" >
               Login
             </Button>
           </Group>

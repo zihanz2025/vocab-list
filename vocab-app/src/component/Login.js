@@ -22,8 +22,9 @@ export default function Login({}) {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background:'linear-gradient(180deg, #f0f9ff 0%, #e0f7fa 100%)' }}>
-      <Paper withBorder shadow="sm" radius="md" p="xl" style={{ width: 340, textAlign: 'center', backgroundColor: 'white' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', 
+    background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)' }}>
+      <Paper withBorder shadow="sm" p="xl" style={{ width: 340, textAlign: 'center', backgroundColor: 'white' }}>
         <Title order={2} mb="md">Login</Title>
         <form onSubmit={handleLogin}>
           <Stack>

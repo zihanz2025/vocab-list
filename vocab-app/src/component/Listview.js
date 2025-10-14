@@ -171,20 +171,6 @@ async function deleteWord(word) {
 }
 
 
-//cancel hightlight on scroll
-useEffect(() => {
-  const handleScroll = () => setHighlightedId(null);
-  const viewport = scrollAreaRef.current;
-  if (viewport) {
-    viewport.addEventListener('scroll', handleScroll);
-  }
-  return () => {
-    if (viewport) {
-      viewport.removeEventListener('scroll', handleScroll);
-    }
-  };
-}, []);
-
 // Logout function
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -206,31 +192,27 @@ useEffect(() => {
     <div
       style={{
         display: 'flex',
-        justifyContent: 'center',
+        flexDirection: 'column',
         alignItems: 'center',
         height: '100vh',
-        background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f7fa 100%)',
+        maxHeight: '100vh',
+        background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)',
       }}
     >
-      <Container size="lg" style={{ width: '80%' }}>
-        <Group justify="space-between" mb="md">
+      <Container size="lg" style={{width: '80%'}}>
+        <Group justify="space-between" style={{ height:'9vh' }}>
           <Title order={2}>My Vocabulary List</Title>
           <Group>
-            <Button component={Link} to="/about">
+            <Button variant='subtle' component={Link} to="/about" size="sm" >
               About
             </Button>
-          <Button onClick={handleLogout}>
+          <Button variant='subtle' onClick={handleLogout}>
             Logout
           </Button>
 
           </Group>
         </Group>
-        <Grid mb="sm">
-          <Grid.Col span="content">
-            <Button onClick={() => setAddingWord(true)}>
-            Add Word
-          </Button>
-          </Grid.Col>
+        <Grid style={{ height:'7vh' }}>
           <Grid.Col span="content">
             <Select
           value={`${sortField}-${sortOrder}`}
@@ -248,7 +230,6 @@ useEffect(() => {
           ]}
           placeholder="Sort by"
           size="sm"
-          radius="md"
           />
           </Grid.Col>
           <Grid.Col span="content">
@@ -259,13 +240,18 @@ useEffect(() => {
             styles={{ root: { minWidth: '220px' } }}
             />
           </Grid.Col>
-           <Grid.Col span="auto">
+          <Grid.Col span="auto">
             <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
-           </Grid.Col>
+          </Grid.Col>
+          <Grid.Col span="content">
+            <Button variant='subtle' onClick={() => setAddingWord(true)}>
+            Add Word
+          </Button>
+          </Grid.Col>
         </Grid>
 
-        <Paper shadow="sm" p="md" radius="md">
-          <ScrollArea viewportRef={scrollAreaRef} style={{ height: 500 }}>
+        <Paper shadow="sm" p="md" >
+          <ScrollArea viewportRef={scrollAreaRef} style={{ height:'80vh' }}>
             <Table highlightOnHover verticalSpacing="sm">
               <thead>
                 <tr>
@@ -292,11 +278,11 @@ useEffect(() => {
                       key={w.id}
                       ref={(el) => (rowRefs.current[w.id] = el)}
                       style={{
-                        backgroundColor: highlightedId === w.id ? '#e0f7fa' : 'transparent',
+                        backgroundColor: highlightedId === w.id ? '#e5e5e5ff' : 'transparent',
                         transition: 'background-color 0.3s',
-                        borderBottom: '1px solid #e0e0e0',
                         margin: '4px 0',
                       }}
+                      onClick={() => setHighlightedId(null)}
                     >
                       <td style={{ textAlign: 'left' ,width : "15%"}}>
                         <Text
@@ -333,7 +319,6 @@ useEffect(() => {
                         <Group justify="flex-end" gap="0.5rem">
                           <Tooltip label="Edit">
                           <ActionIcon
-                          color="cyan"
                           variant="light"
                           onClick={() => setSelectedWord(w)}
                           >
@@ -342,7 +327,6 @@ useEffect(() => {
                           </Tooltip>
                           <Tooltip label="Delete">
                           <ActionIcon
-                          color="cyan"
                           variant="light"
                           onClick={() => deleteWord(w)}
                           >

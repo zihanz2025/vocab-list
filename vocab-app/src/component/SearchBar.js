@@ -4,6 +4,7 @@ import { IconSearch } from '@tabler/icons-react';
 
 export default function WordSearch({ words, allWords, onLocateWord }) {
   const [value, setValue] = useState('');
+  const [opened, setOpened] = useState(false);
 
   // Compute filtered suggestions
   const filteredWords = words
@@ -31,7 +32,7 @@ export default function WordSearch({ words, allWords, onLocateWord }) {
   const handleSearch = () => {
     const match = words.find((w) => w.word.toLowerCase() === value.toLowerCase());
     if (match) {
-      onLocateWord(match.word);
+      onLocateWord(match.word,{ overrideFilter: false });
     }
   };
 
@@ -41,13 +42,15 @@ export default function WordSearch({ words, allWords, onLocateWord }) {
       icon={<IconSearch size={16} />}
       value={value}
       onChange={setValue}
+      opened={opened}
       data={data}
       limit={6}
       withinPortal
       nothingFound="No matches"
       onKeyDown={(e) => {
         if (e.key === 'Enter') handleSearch();
-      }}
+      }
+    }
       onOptionSubmit={(option) => {
         if (option.startsWith('→ Locate')) {
           // locate in allWords (full list)
@@ -68,13 +71,15 @@ export default function WordSearch({ words, allWords, onLocateWord }) {
       }}
       styles={{
         input: {
-          borderRadius: '12px',
+          borderRadius: '2px',
           fontSize: '1rem',
           backgroundColor: 'white',
         },
-        dropdown: { borderRadius: '12px', overflow: 'hidden' },
-        option: { padding: '8px 12px', cursor: 'pointer' },
+        dropdown: { borderRadius: '2px', overflow: 'hidden' },
+        option: { padding: '8px 12px', cursor: 'pointer', background: '#e5e5e5ff'},
       }}
+      onFocus={() => setOpened(true)}
+      onBlur={() => setOpened(false)}
     />
   );
 }

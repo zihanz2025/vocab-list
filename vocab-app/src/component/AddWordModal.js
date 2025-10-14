@@ -30,7 +30,7 @@ export default function AddWordModal({ categories, onClose, onAdded }) {
     <Modal
       opened={true}
       onClose={onClose}
-      title="Add New Word"
+      title={<span style={{ fontSize: '1.4rem', fontWeight: 600 }}>Add New Word</span>}
       overlayProps={{ color: 'black', opacity: 0.5, blur: 3 }}
       styles={{
         modal: { background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f7fa 100%)' },
@@ -64,10 +64,10 @@ export default function AddWordModal({ categories, onClose, onAdded }) {
         mb="sm"
       />
       <Group position="right">
-        <Button color="cyan" onClick={handleAdd} loading={loading}>
+        <Button onClick={handleAdd} loading={loading}>
           Add
         </Button>
-        <Button color="gray" variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
       </Group>

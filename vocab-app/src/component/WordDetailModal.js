@@ -26,14 +26,14 @@ export default function WordDetailModal({ word, categories, onClose, onUpdated }
     <Modal
       opened={true}
       onClose={onClose}
-      title={word.word}
+      title={<span style={{ fontSize: '1.4rem', fontWeight: 600 }}>{word.word}</span>}
       overlayProps={{
         color: 'black',
         opacity: 0.5,
         blur: 3,
       }}
       styles={{
-        modal: { background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f7fa 100%)' },
+        modal: { background: 'linear-gradient(180deg, #f0f9ff 0%, #edededff 100%)' },
       }}
     >
       <Select
@@ -57,10 +57,10 @@ export default function WordDetailModal({ word, categories, onClose, onUpdated }
         mb="sm"
       />
       <Group position="right">
-        <Button color="cyan" onClick={handleSave} loading={loading}>
+        <Button onClick={handleSave} loading={loading}>
           Save
         </Button>
-        <Button color="gray" variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Close
         </Button>
       </Group>
