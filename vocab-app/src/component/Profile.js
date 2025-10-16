@@ -96,7 +96,7 @@ export default function Profile() {
     background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)' }}>
         <Stack style={{height:'100%', width: '90%'}}>
         <Group justify="space-between" style={{ height:'9%' }}>
-          <Title order={3}>Upate Profile</Title>
+          <Title order={3}>Update Profile</Title>
           <Group>
           <Button variant='subtle' component={Link} to="/about" size="sm" >
               About
@@ -110,7 +110,7 @@ export default function Profile() {
           </Group>
         </Group>
         <Space h="lg" />
-        <Container style={{height:'91%', width:"50%"}}>
+        <Container style={{height:'91%', width:400}}>
         <form onSubmit={handleUpdateNickname}>
             <Stack>
                 <Title order={4}>Change display name</Title>

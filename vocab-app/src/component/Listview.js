@@ -219,7 +219,7 @@ async function deleteWord(word) {
               About
           </Button>
           <Button variant='subtle' component={Link} to="/profile" size="sm" >
-              Profile
+              User
             </Button>
           <Button variant='subtle'  onClick={handleLogout}>
             Logout
@@ -301,8 +301,6 @@ async function deleteWord(word) {
                       <td style={{ textAlign: 'left' ,width : "15%"}}>
                         <Text
                           component="span"
-                          c="blue"
-                          underline
                           sx={{ cursor: 'pointer' }}
                           onClick={() => goToWordReference(w)}
                         >
@@ -312,7 +310,7 @@ async function deleteWord(word) {
                       <td style={{ textAlign: 'left' ,width : "5%"}}>
                         <Text
                           component="span"
-                          c={isVerb ? 'green' : 'dimmed'}
+                          c={isVerb ? '#666565ff' : '#000000ff'}
                           underline={isVerb}
                           sx={{ cursor: isVerb ? 'pointer' : 'default' }}
                           onClick={() => {
