@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
@@ -7,7 +8,7 @@ import WordSearch from './SearchBar';
 import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid} from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
-export default function Listview() {
+export default function Listview({onLogout}) {
   const [words, setWords] = useState([]);
   const [categories, setCategories] = useState({});
   const [selectedWord, setSelectedWord] = useState(null);
@@ -19,6 +20,7 @@ export default function Listview() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const scrollAreaRef = useRef(null);
   const rowRefs = useRef({});
+  const navigate = useNavigate();
   
   // Fetch words on initialization
   useEffect(() => {
@@ -184,7 +186,7 @@ async function deleteWord(word) {
       setHighlightedId(null);
       setExpandedRows(new Set());
 
-      window.location.href = '/vocab-list';
+      navigate('/', { replace: true });
     }
   };
 
@@ -206,7 +208,7 @@ async function deleteWord(word) {
             <Button variant='subtle' component={Link} to="/about" size="sm" >
               About
             </Button>
-          <Button variant='subtle' onClick={handleLogout}>
+          <Button variant='subtle'  onClick={onLogout}>
             Logout
           </Button>
 
