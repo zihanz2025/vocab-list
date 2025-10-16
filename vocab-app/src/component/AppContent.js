@@ -24,6 +24,12 @@ export default function AppContent() {
   }, []);
 
   const handleLogout = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session) {
+        console.log("No session found, redirecting anyway.");
+        return navigate('/', { replace: true });
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Logout failed:', error);

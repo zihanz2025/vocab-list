@@ -172,24 +172,6 @@ async function deleteWord(word) {
   }
 }
 
-
-// Logout function
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.log('Logout failed:', error);
-    else {
-      // Clear state
-      setWords([]);
-      setCategories({});
-      setSelectedWord(null);
-      setAddingWord(false);
-      setHighlightedId(null);
-      setExpandedRows(new Set());
-
-      navigate('/', { replace: true });
-    }
-  };
-
   return (
     <div
       style={{
