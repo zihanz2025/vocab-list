@@ -25,6 +25,7 @@ A personal vocabulary manager for learning French inspired by my own need. Users
 - [Mantine UI](https://mantine.dev/)
 - [Supabase](https://supabase.com/)
 - [WordReference](https://www.wordreference.com/)
+- Icon made by uniconlabs from www.flaticon.com
 
 
 ## License
