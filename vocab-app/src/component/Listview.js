@@ -171,6 +171,18 @@ async function deleteWord(word) {
     setWords(words.filter(w => w.id !== word.id));
   }
 }
+//logout
+    const handleLogout = async () => {
+
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout failed:', error);
+      return;
+    }
+    setWords([]);
+    setCategories({});
+    navigate('/', { replace: true });
+  };
 
   return (
     <div
@@ -179,7 +191,6 @@ async function deleteWord(word) {
         flexDirection: 'column',
         alignItems: 'center',
         height: '100vh',
-        maxHeight: '100vh',
         background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)',
       }}
     >
@@ -190,7 +201,7 @@ async function deleteWord(word) {
             <Button variant='subtle' component={Link} to="/about" size="sm" >
               About
             </Button>
-          <Button variant='subtle'  onClick={onLogout}>
+          <Button variant='subtle'  onClick={handleLogout}>
             Logout
           </Button>
 

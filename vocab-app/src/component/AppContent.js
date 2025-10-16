@@ -29,7 +29,6 @@ export default function AppContent() {
         console.log("No session found, redirecting anyway.");
         return navigate('/', { replace: true });
     }
-
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Logout failed:', error);
