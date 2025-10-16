@@ -2,7 +2,7 @@
   "name": "vocab-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://zihanz2025.github.io/le-vocabulaire",
+  "homepage": "https://zihanz2025.github.io/vocab-list",
   "dependencies": {
     "@mantine/core": "^8.3.4",
     "@mantine/hooks": "^8.3.4",

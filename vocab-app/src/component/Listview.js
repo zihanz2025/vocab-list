@@ -184,7 +184,7 @@ async function deleteWord(word) {
       setHighlightedId(null);
       setExpandedRows(new Set());
 
-      window.location.href = '/';
+      window.location.href = '/vocab-list';
     }
   };
 

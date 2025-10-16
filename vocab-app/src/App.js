@@ -47,7 +47,7 @@ function App() {
   }}
   defaultColorScheme="light"
 >
-      <Router>
+      <Router basename="/vocab-list">
         <Routes>
           {/* Protect private route */}
           <Route
