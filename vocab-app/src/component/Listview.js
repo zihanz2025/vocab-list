@@ -10,6 +10,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 export default function Listview({onLogout}) {
   const [words, setWords] = useState([]);
+  const [nickname, setNickname] = useState('');
   const [categories, setCategories] = useState({});
   const [selectedWord, setSelectedWord] = useState(null);
   const [addingWord, setAddingWord] = useState(false);
@@ -45,8 +46,23 @@ export default function Listview({onLogout}) {
         setCategories(map);
       }
     }
+
+    async function fetchNickname(){
+      const { data: { user }, userError } = await supabase.auth.getUser();
+      if (!user || userError) console.log('Error fetching user info:', error);
+      const userId = user.id;
+      const { data, error } = await supabase
+      .from('profiles') // replace with your user table name
+      .select('nickname')
+      .eq('id', userId)
+      .single();
+
+    if (error) console.log('Error fetching nickname:', error);
+    else setNickname(data.nickname);
+    }
     fetchCategories();
     fetchWords();
+    fetchNickname();
   }, []);
 
   //filter by categories
@@ -197,15 +213,17 @@ async function deleteWord(word) {
     >
       <Stack style={{height:'100%', width: '90%'}}>
         <Group justify="space-between" style={{ height:'9%' }}>
-          <Title order={2}>My Vocabulary List</Title>
+          <Title order={3}>{nickname ? `${nickname}'s French Vocabulary List` : 'My French Vocabulary List'}</Title>
           <Group>
-            <Button variant='subtle' component={Link} to="/about" size="sm" >
+          <Button variant='subtle' component={Link} to="/about" size="sm" >
               About
+          </Button>
+          <Button variant='subtle' component={Link} to="/profile" size="sm" >
+              Profile
             </Button>
           <Button variant='subtle'  onClick={handleLogout}>
             Logout
           </Button>
-
           </Group>
         </Group>
         <Grid style={{ height:'7%' }}>

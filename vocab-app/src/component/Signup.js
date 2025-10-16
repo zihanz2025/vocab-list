@@ -62,7 +62,7 @@ export default function Signup() {
       }}
     >
       <Container size={600} px="md">
-        <Paper withBorder shadow="sm" p="xl" style={{ width: 340, textAlign: 'center', backgroundColor: 'white' }}>
+        <Paper withBorder shadow="sm" p="xl" style={{ width: 400, textAlign: 'center', backgroundColor: 'white' }}>
           <Title order={2} mb="md">Sign Up</Title>
 
           <form onSubmit={handleSignup}>
@@ -90,7 +90,7 @@ export default function Signup() {
           </form>
 
           {message && (
-            <Text size="sm" color={message.includes('success') ? 'green' : 'red'} mt="md">
+            <Text size="sm" mt="md" c="#8F8F8F">
               {message}
             </Text>
           )}

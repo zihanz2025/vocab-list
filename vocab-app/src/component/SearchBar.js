@@ -38,7 +38,7 @@ export default function WordSearch({ words, allWords, onLocateWord }) {
 
   return (
     <Autocomplete
-      placeholder="Search for a word"
+      placeholder="Search"
       icon={<IconSearch size={16} />}
       value={value}
       onChange={setValue}

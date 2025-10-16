@@ -6,6 +6,7 @@ import Signup from './Signup';
 import Login from './Login';
 import Listview from './Listview';
 import About from './About';
+import Profile from './Profile';
 
 export default function AppContent() {
   const [user, setUser] = useState(null);
@@ -41,6 +42,7 @@ export default function AppContent() {
   return (
     <Routes>
       <Route path="/list" element={user ? <Listview onLogout={handleLogout} /> : <Navigate to="/" replace />} />
+      <Route path="/profile" element={user ? <Profile /> : <Navigate to="/" replace />} />
       <Route path="/" element={user ? <Navigate to="/list" replace /> : <Welcome />} />
       <Route path="/about" element={<About />} />
       <Route path="/signup" element={user ? <Navigate to="/list" replace /> : <Signup />} />
