@@ -5,7 +5,7 @@ import { supabase } from '../supaBaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
 import WordSearch from './SearchBar';
-import {Table, Paper, Button, Group, Text, Title, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid} from '@mantine/core';
+import {Table, Paper, Button, Group, Text, Title, Stack, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid} from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 export default function Listview({onLogout}) {
@@ -191,11 +191,12 @@ async function deleteWord(word) {
         flexDirection: 'column',
         alignItems: 'center',
         height: '100vh',
+        maxHeight: '100vh',
         background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)',
       }}
     >
-      <Container size="lg" style={{width: '80%'}}>
-        <Group justify="space-between" style={{ height:'9vh' }}>
+      <Stack style={{height:'100%', width: '90%'}}>
+        <Group justify="space-between" style={{ height:'9%' }}>
           <Title order={2}>My Vocabulary List</Title>
           <Group>
             <Button variant='subtle' component={Link} to="/about" size="sm" >
@@ -207,7 +208,7 @@ async function deleteWord(word) {
 
           </Group>
         </Group>
-        <Grid style={{ height:'7vh' }}>
+        <Grid style={{ height:'7%' }}>
           <Grid.Col span="content">
             <Select
           value={`${sortField}-${sortOrder}`}
@@ -245,8 +246,8 @@ async function deleteWord(word) {
           </Grid.Col>
         </Grid>
 
-        <Paper shadow="sm" p="md" >
-          <ScrollArea viewportRef={scrollAreaRef} style={{ height:'80vh' }}>
+        <Paper shadow="sm" p="md" style={{ height:'84%', overflow: 'hidden'}}>
+          <ScrollArea viewportRef={scrollAreaRef} style={{ height: '100%' }}>
             <Table highlightOnHover verticalSpacing="sm">
               <thead>
                 <tr>
@@ -273,7 +274,7 @@ async function deleteWord(word) {
                       key={w.id}
                       ref={(el) => (rowRefs.current[w.id] = el)}
                       style={{
-                        backgroundColor: highlightedId === w.id ? '#e5e5e5ff' : 'transparent',
+                        backgroundColor: highlightedId === w.id ? "#C7C7C7" : 'transparent',
                         transition: 'background-color 0.3s',
                         margin: '4px 0',
                       }}
@@ -353,7 +354,7 @@ async function deleteWord(word) {
           onAdded={refreshWords}
         />
       )}
-      </Container>
+      </Stack>
      </div>
   );
 }

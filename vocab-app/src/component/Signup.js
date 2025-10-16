@@ -9,7 +9,6 @@ export default function Signup() {
   const [nickname, setNickname] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {

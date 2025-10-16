@@ -76,7 +76,7 @@ export default function WordSearch({ words, allWords, onLocateWord }) {
           backgroundColor: 'white',
         },
         dropdown: { borderRadius: '2px', overflow: 'hidden' },
-        option: { padding: '8px 12px', cursor: 'pointer', background: '#e5e5e5ff'},
+        option: { padding: '8px 12px', cursor: 'pointer'},
       }}
       onFocus={() => setOpened(true)}
       onBlur={() => setOpened(false)}
