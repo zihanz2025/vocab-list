@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supaBaseClient';
+import { supabase } from '../supabaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
 import WordSearch from './SearchBar';
-import {Table, Paper, Button, Group, Text, Title, Stack, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid} from '@mantine/core';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import {Table, Paper, Button, Group, Text, Title, Stack, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid, Badge} from '@mantine/core';
+import { IconEdit, IconTrash, IconPlus, IconBook2, IconUser, IconSettings, IconLogout } from '@tabler/icons-react';
 
 export default function Listview({onLogout}) {
   const [words, setWords] = useState([]);
@@ -23,7 +23,6 @@ export default function Listview({onLogout}) {
   const rowRefs = useRef({});
   const navigate = useNavigate();
   
-  // Fetch words on initialization
   useEffect(() => {
     async function fetchWords() {
       const { data, error } = await supabase
@@ -52,7 +51,7 @@ export default function Listview({onLogout}) {
       if (!user || userError) console.log('Error fetching user info:', error);
       const userId = user.id;
       const { data, error } = await supabase
-      .from('profiles') // replace with your user table name
+      .from('profiles')
       .select('nickname')
       .eq('id', userId)
       .single();
@@ -65,12 +64,11 @@ export default function Listview({onLogout}) {
     fetchNickname();
   }, []);
 
-  //filter by categories
   let categoryOptions = [
   { value: 'noms', label: 'nom' },
   ...Object.values(categories).map((c) => ({
     value: c.name.toLowerCase(),
-    label: c.name,
+    label: c.name.toLowerCase(),
   })),
   ];
   categoryOptions.sort((a, b) => a.label.localeCompare(b.label, 'fr'));
@@ -91,8 +89,6 @@ export default function Listview({onLogout}) {
 })();
 
 
-
-  //click on word go to definition page on wordreference.com
   const goToWordReference = (w) => {
     updateViewCount(w);
     window.open(
@@ -101,7 +97,6 @@ export default function Listview({onLogout}) {
     );
   };
 
-  //click on verb category to go to conjugation page on wordreference.com
   const goToConjugation = (word) => {
     window.open(
       `https://www.wordreference.com/conj/frverbs.aspx?v=${encodeURIComponent(word)}`,
@@ -109,7 +104,6 @@ export default function Listview({onLogout}) {
     );
   };
 
-  //expandable rows logic to show full note
   const toggleRow = (id) => {
   setExpandedRows((prev) => {
     const newSet = new Set(prev);
@@ -119,7 +113,6 @@ export default function Listview({onLogout}) {
   });
 };
 
-  //each click to view word details increase view count by 1
   async function updateViewCount(word) {
     setWords(
       words.map((w) =>
@@ -134,7 +127,6 @@ export default function Listview({onLogout}) {
     if (error) console.log('Failed to update view count:', error);
   }
 
-  //exposed fetch function to refresh words after add/edit
   async function refreshWords() {
       const { data, error } = await supabase
         .from('user_words')
@@ -144,19 +136,17 @@ export default function Listview({onLogout}) {
       if (error) console.log(error);
       else setWords(data);
   }
-  //refrensh when sorting method changes
+
   useEffect(() => {
     refreshWords();
   }, [sortField, sortOrder]);
 
 
-  //locate and highlight searched word in the list
   async function locateWord(wordToFind, options = {}) {
     const target = words.find(
     (w) => w.word.toLowerCase() === wordToFind.toLowerCase()
   );
   if (!target) return false;
-  // if overrideFilter is true, reset category to 'all'
   if (options.overrideFilter) {
     setSelectedCategory('all');
   }
@@ -165,12 +155,10 @@ export default function Listview({onLogout}) {
   if (rowEl && scrollAreaRef.current) {
     rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-  // persist highlight
   setHighlightedId(target.id);
   return true;
 }
 
-// inside Listview component
 async function deleteWord(word) {
   const confirmDelete = window.confirm("Are you sure you want to delete this word?");
   if (!confirmDelete) return;
@@ -183,11 +171,10 @@ async function deleteWord(word) {
   if (error) {
     console.log("Failed to delete word:", error);
   } else {
-    // remove the word from local state so UI updates immediately
     setWords(words.filter(w => w.id !== word.id));
   }
 }
-//logout
+
     const handleLogout = async () => {
 
     const { error } = await supabase.auth.signOut();
@@ -205,154 +192,273 @@ async function deleteWord(word) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        height: '100vh',
-        maxHeight: '100vh',
-        background: 'linear-gradient(180deg, #fffdfdff 0%, #bab8b8ff 100%)',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%)',
       }}
     >
-      <Stack style={{height:'100%', width: '90%'}}>
-        <Group justify="space-between" style={{ height:'9%' }}>
-          <Title order={3}>{nickname ? `${nickname}'s French Vocabulary List` : 'My French Vocabulary List'}</Title>
-          <Group>
-          <Button variant='subtle' component={Link} to="/about" size="sm" >
+      <header style={{ 
+        background: '#800020',
+        padding: '1rem 2rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ 
+              width: '44px', 
+              height: '44px', 
+              background: 'rgba(255, 255, 255, 0.2)', 
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <IconBook2 size={22} color="white" />
+            </div>
+            <div>
+              <Title order={3} style={{ color: 'white', margin: 0, fontWeight: 600 }}>
+                Vocabulary List
+              </Title>
+              <Text size="xs" c="white" style={{ opacity: 0.8 }}>
+                {words.length} entries
+              </Text>
+            </div>
+          </div>
+
+          <Group spacing="md">
+            <Button 
+              variant="subtle" 
+              component={Link} 
+              to="/about" 
+              size="sm"
+              style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+            >
               About
-          </Button>
-          <Button variant='subtle' component={Link} to="/profile" size="sm" >
-              User
             </Button>
-          <Button variant='subtle'  onClick={handleLogout}>
-            Logout
-          </Button>
+            <Button 
+              variant="subtle" 
+              component={Link} 
+              to="/profile" 
+              size="sm"
+              style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              <IconUser size={16} style={{ marginRight: '6px' }} />
+              {nickname || 'Profile'}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              size="sm"
+              style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}
+            >
+              <IconLogout size={16} style={{ marginRight: '6px' }} />
+              Logout
+            </Button>
           </Group>
-        </Group>
-        <Grid style={{ height:'7%' }}>
-          <Grid.Col span="content">
-            <Select
-          value={`${sortField}-${sortOrder}`}
-          onChange={(value) => {
-            const [field, order] = value.split('-');
-            setSortField(field);
-            setSortOrder(order);
+        </div>
+      </header>
+
+      <Container
+      size="lg"
+      py="xs"
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        }}>
+        <Paper 
+          shadow="lg" 
+          radius="xl" 
+          p="md"
+          style={{ 
+            background: 'white',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)',
           }}
-          data={[
-            { value: 'created_at-desc', label: 'Date Added (Newest)' },
-            { value: 'created_at-asc', label: 'Date Added (Oldest)' },
-            { value: 'word-asc', label: 'Alphabetical (A–Z)' },
-            { value: 'view_count-desc', label: 'Views (Most)' },
-            { value: 'view_count-asc', label: 'Views (Least)' },
-          ]}
-          placeholder="Sort by"
-          size="sm"
-          />
-          </Grid.Col>
-          <Grid.Col span="content">
-            <Select
-            data={categoryOptions}
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-            styles={{ root: { minWidth: '220px' } }}
-            />
-          </Grid.Col>
-          <Grid.Col span="auto">
-            <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
-          </Grid.Col>
-          <Grid.Col span="content">
-            <Button variant='subtle' onClick={() => setAddingWord(true)}>
-            Add Word
-          </Button>
-          </Grid.Col>
-        </Grid>
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <Select
+                value={`${sortField}-${sortOrder}`}
+                onChange={(value) => {
+                  const [field, order] = value.split('-');
+                  setSortField(field);
+                  setSortOrder(order);
+                }}
+                data={[
+                  { value: 'created_at-desc', label: 'Date Added (Newest)' },
+                  { value: 'created_at-asc', label: 'Date Added (Oldest)' },
+                  { value: 'word-asc', label: 'Alphabetical (A–Z)' },
+                  { value: 'view_count-desc', label: 'Views (Most)' },
+                  { value: 'view_count-asc', label: 'Views (Least)' },
+                ]}
+                placeholder="Sort by"
+                size="sm"
+                style={{ width: '180px' }}
+              />
+              <Select
+                data={categoryOptions}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                style={{ width: '200px' }}
+                placeholder="Filter by category"
+                size="sm"
+              />
+            </div>
 
-        <Paper shadow="sm" p="md" style={{ height:'84%', overflow: 'hidden'}}>
-          <ScrollArea viewportRef={scrollAreaRef} style={{ height: '100%' }}>
-            <Table highlightOnHover verticalSpacing="sm">
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left' }}>Word</th>
-                  <th></th> {/* Category column */}
-                  <th style={{ textAlign: 'left' }}>Note</th>
-                  <th style={{ textAlign: 'left' }}>Views</th>
-                  <th style={{ textAlign: 'left' }}>Date Added</th>
-                  <th></th> {/* Button column */}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredWords.map((w) => {
-                  const cat = categories[w.category_id];
-                  const shortNote =
-                    w.notes?.length > 50
-                      ? w.notes.slice(0, 50) + '...'
-                      : w.notes;
-                  const isVerb = cat?.name?.toLowerCase()==='verbe';
-                  const dateCreated = w.created_at ? w.created_at.substring(0,10): ''
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, minWidth: '200px', marginLeft: '1.5rem' }}>
+              <div style={{ flex: 1 }}>
+                <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
+              </div>
+              <Button 
+                onClick={() => setAddingWord(true)}
+                size="sm"
+                style={{ 
+                  background: 'linear-gradient(135deg, #800020 0%, #A52A2A 100%)',
+                  boxShadow: '0 4px 14px 0 rgba(128, 0, 32, 0.4)',
+                  fontWeight: 600,
+                }}
+              >
+                <IconPlus size={16} style={{ marginRight: '6px' }} />
+                Add Word
+              </Button>
+            </div>
+          </div>
+          <div
+          style={{
+            maxHeight: '550px',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            }}>
+              <Table style={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Word</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Category</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Note</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Views</th>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Date Added</th>
+                    <th style={{ textAlign: 'center', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredWords.map((w) => {
+                    const cat = categories[w.category_id];
+                    const shortNote = w.notes?.length > 60 ? w.notes.slice(0, 60) + '...' : w.notes;
+                    const isVerb = cat?.name?.toLowerCase() === 'verbe';
+                    const dateCreated = w.created_at ? w.created_at.substring(0, 10) : '';
 
-                  return (
-                    <tr
-                      key={w.id}
-                      ref={(el) => (rowRefs.current[w.id] = el)}
-                      style={{
-                        backgroundColor: highlightedId === w.id ? "#C7C7C7" : 'transparent',
-                        transition: 'background-color 0.3s',
-                        margin: '4px 0',
-                      }}
-                      onClick={() => setHighlightedId(null)}
-                    >
-                      <td style={{ textAlign: 'left' ,width : "15%"}}>
-                        <Text
-                          component="span"
-                          sx={{ cursor: 'pointer' }}
-                          onClick={() => goToWordReference(w)}
-                        >
-                          {w.word}
-                        </Text>
-                      </td>
-                      <td style={{ textAlign: 'left' ,width : "5%"}}>
-                        <Text
-                          component="span"
-                          c={isVerb ? '#666565ff' : '#000000ff'}
-                          underline={isVerb}
-                          sx={{ cursor: isVerb ? 'pointer' : 'default' }}
-                          onClick={() => {
-                            if (isVerb) goToConjugation(w.word);
-                          }}
-                        >
-                          {cat?.abbreviation || ''}
-                        </Text>
-                      </td>
-                      <td style={{ textAlign: 'left', cursor: 'pointer' , width : "55%", padding: '8px 16px'}} onClick={() => toggleRow(w.id)}>
-                        {expandedRows.has(w.id) ? w.notes : shortNote}
-                      </td>
-                      <td style={{ textAlign: 'left' ,width : "5%"}}>{w.view_count}</td>
-                      <td style={{ textAlign: 'left', width: "10%"}}>
-                        {dateCreated}
-                        </td>
-                      <td style={{width : "10%"}}>
-                        <Group justify="flex-end" gap="0.5rem">
-                          <Tooltip label="Edit">
-                          <ActionIcon
-                          variant="light"
-                          onClick={() => setSelectedWord(w)}
+                    return (
+                      <tr
+                        key={w.id}
+                        ref={(el) => (rowRefs.current[w.id] = el)}
+                        style={{
+                          backgroundColor: highlightedId === w.id ? '#d9e2ec' : 'white',
+                          borderRadius: '12px',
+                          boxShadow: highlightedId === w.id ? '0 4px 20px rgba(16, 42, 67, 0.15)' : '0 2px 8px rgba(0, 0, 0, 0.04)',
+                          transition: 'all 0.3s ease',
+                        }}
+                        onClick={() => setHighlightedId(null)}
+                      >
+                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                          <Text 
+                            component="span"
+                            sx={{ cursor: 'pointer' }}
+                            onClick={() => goToWordReference(w)}
+                            style={{ 
+                              fontSize: '1rem', 
+                              fontWeight: 500, 
+                              color: '#1e293b',
+                              textDecoration: 'underline',
+                              textDecorationColor: 'transparent',
+                              transition: 'text-decoration-color 0.2s',
+                            }}
+                            onMouseEnter={(e) => e.target.style.textDecorationColor = '#667eea'}
+                            onMouseLeave={(e) => e.target.style.textDecorationColor = 'transparent'}
                           >
-                            <IconEdit size={16} />
-                          </ActionIcon>
-                          </Tooltip>
-                          <Tooltip label="Delete">
-                          <ActionIcon
-                          variant="light"
-                          onClick={() => deleteWord(w)}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                          </Tooltip>
-                          </Group >
+                            {w.word}
+                          </Text>
                         </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          </ScrollArea>
+                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                          <Badge 
+                            variant="light" 
+                            color={isVerb ? 'purple' : 'blue'}
+                            style={{ 
+                              cursor: isVerb ? 'pointer' : 'default',
+                              padding: '4px 12px',
+                              fontSize: '0.75rem',
+                              textTransform: 'none',
+                            }}
+                            onClick={() => {
+                              if (isVerb) goToConjugation(w.word);
+                            }}
+                          >
+                            {cat?.abbreviation?.toLowerCase() || ''}
+                          </Badge>
+                        </td>
+                        <td style={{ padding: '16px', borderBottom: 'none', cursor: 'pointer', maxWidth: '300px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }} onClick={() => toggleRow(w.id)}>
+                          <Text size="sm" c="neutral.6" style={{ lineHeight: '1.5' }}>
+                            {expandedRows.has(w.id) ? w.notes : shortNote}
+                          </Text>
+                        </td>
+                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                          <Badge 
+                            variant="outline" 
+                            color="neutral"
+                            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                          >
+                            {w.view_count}
+                          </Badge>
+                        </td>
+                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                          <Text size="sm" c="neutral.5" style={{ fontSize: '0.8125rem' }}>
+                            {dateCreated}
+                          </Text>
+                        </td>
+                        <td style={{ padding: '16px', borderBottom: 'none', textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
+                          <Group justify="center" gap="0.5rem">
+                            <Tooltip label="Edit">
+                              <ActionIcon
+                                variant="light"
+                                onClick={() => setSelectedWord(w)}
+                                style={{ 
+                                  borderRadius: '8px',
+                                  hover: { backgroundColor: '#f1f5f9' },
+                                }}
+                              >
+                                <IconEdit size={16} color="#64748b" />
+                              </ActionIcon>
+                            </Tooltip>
+                            <Tooltip label="Delete">
+                              <ActionIcon
+                                variant="light"
+                                onClick={() => deleteWord(w)}
+                                style={{ borderRadius: '8px' }}
+                              >
+                                <IconTrash size={16} color="#ef4444" />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+
+              {filteredWords.length === 0 && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '4rem',
+                  color: '#94a3b8',
+                }}>
+                  <IconBook2 size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                  <Text size="lg" style={{ fontWeight: 500 }}>No words found</Text>
+                  <Text size="sm" style={{ marginTop: '0.5rem' }}>
+                    {selectedCategory !== 'all' ? 'Try changing the filter' : 'Start by adding your first word'}
+                  </Text>
+                </div>
+              )}
+          </div>
         </Paper>
 
         {selectedWord && (
@@ -370,7 +476,7 @@ async function deleteWord(word) {
           onAdded={refreshWords}
         />
       )}
-      </Stack>
-     </div>
+      </Container>
+    </div>
   );
 }

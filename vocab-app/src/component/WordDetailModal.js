@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../supaBaseClient';
+import { supabase } from '../supabaseClient';
 import { Modal, Textarea, Select, Button, Group } from '@mantine/core';
 
 export default function WordDetailModal({ word, categories, onClose, onUpdated }) {
@@ -37,24 +37,24 @@ export default function WordDetailModal({ word, categories, onClose, onUpdated }
       }}
     >
       <Select
-        label="Category"
+        placeholder="Select category"
         data={Object.values(categories).map(c => ({
           value: String(c.id),
           label: `${c.name} (${c.abbreviation})`,
         }))}
         value={String(categoryId)}
         onChange={(val) => setCategoryId(Number(val))}
-        mb="sm"
+        mb="md"
       />
       <Textarea
-        label="Note"
         placeholder="Add your note..."
         value={notes}
         onChange={(e) => setNote(e.currentTarget.value)}
         autosize
         minRows={10}
         maxRows={20}
-        mb="sm"
+        mb="md"
+        style={{ width: '100%', maxWidth: '100%', resize: 'vertical' }}
       />
       <Group position="right">
         <Button onClick={handleSave} loading={loading}>

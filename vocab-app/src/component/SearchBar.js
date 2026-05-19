@@ -47,6 +47,7 @@ export default function WordSearch({ words, allWords, onLocateWord }) {
       limit={6}
       withinPortal
       nothingFound="No matches"
+      style={{ width: '100%' }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') handleSearch();
       }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../supaBaseClient';
+import { supabase } from '../supabaseClient';
 import { Modal, TextInput, Textarea, Select, Button, Group } from '@mantine/core';
 
 export default function AddWordModal({ categories, onClose, onAdded }) {
@@ -37,31 +37,29 @@ export default function AddWordModal({ categories, onClose, onAdded }) {
       }}
     >
       <TextInput
-        label="Word"
         placeholder="Enter the word"
         value={word}
         onChange={(e) => setWord(e.currentTarget.value)}
-        mb="sm"
+        mb="md"
       />
       <Select
-        label="Category"
+        placeholder="Select category"
         data={Object.values(categories).map(c => ({
           value: String(c.id),
           label: `${c.name} (${c.abbreviation})`,
         }))}
         value={categoryId}
         onChange={setCategoryId}
-        mb="sm"
+        mb="md"
       />
       <Textarea
-        label="Note"
         placeholder="Optional note"
         value={notes}
         onChange={(e) => setNotes(e.currentTarget.value)}
         autosize
         minRows={10}
         maxRows={20}
-        mb="sm"
+        mb="md"
       />
       <Group position="right">
         <Button onClick={handleAdd} loading={loading}>

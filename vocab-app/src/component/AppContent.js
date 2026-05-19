@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { supabase } from './../supaBaseClient';
+import { supabase } from './../supabaseClient';
 import Welcome from './Welcome';
 import Signup from './Signup';
 import Login from './Login';
