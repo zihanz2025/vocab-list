@@ -14,7 +14,7 @@ export default function Welcome() {
           padding: '1rem',
         }}
       >
-      <Container size={500} px="md">
+      <Container size="lg" px="md">
         <Paper 
           shadow="xl" 
           radius="xl" 
@@ -64,8 +64,8 @@ export default function Welcome() {
             Review, track, and expand your knowledge with ease.
           </Text>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '1.5rem' }}>
-            <Link to="/about" style={{ textDecoration: 'none', width: '100px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+            <Link to="/about" style={{ textDecoration: 'none', minWidth: '90px', flexShrink: 0 }}>
               <button 
                 style={{ 
                   background: 'transparent',
@@ -73,17 +73,22 @@ export default function Welcome() {
                   border: '1px solid #800020',
                   fontWeight: 500,
                   borderRadius: '12px',
-                  padding: '12px 24px',
+                  padding: '12px 16px',
                   fontSize: '14px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   width: '100%',
+                  boxSizing: 'border-box',
+                  minHeight: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 About
               </button>
             </Link>
-            <Link to="/signup" style={{ textDecoration: 'none', width: '100px' }}>
+            <Link to="/signup" style={{ textDecoration: 'none', minWidth: '90px', flexShrink: 0 }}>
               <button 
                 style={{ 
                   background: '#800020',
@@ -91,18 +96,23 @@ export default function Welcome() {
                   fontWeight: 600,
                   borderRadius: '12px',
                   boxShadow: '0 4px 14px 0 rgba(128, 0, 32, 0.4)',
-                  padding: '12px 24px',
+                  padding: '12px 16px',
                   fontSize: '14px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   width: '100%',
+                  boxSizing: 'border-box',
+                  minHeight: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 Sign Up
               </button>
             </Link>
-            <Link to="/login" style={{ textDecoration: 'none', width: '100px' }}>
+            <Link to="/login" style={{ textDecoration: 'none', minWidth: '90px', flexShrink: 0 }}>
               <button 
                 style={{ 
                   background: '#800020',
@@ -110,12 +120,17 @@ export default function Welcome() {
                   fontWeight: 600,
                   borderRadius: '12px',
                   boxShadow: '0 4px 14px 0 rgba(128, 0, 32, 0.4)',
-                  padding: '12px 24px',
+                  padding: '12px 16px',
                   fontSize: '14px',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   width: '100%',
+                  boxSizing: 'border-box',
+                  minHeight: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 Login

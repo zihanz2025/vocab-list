@@ -39,7 +39,8 @@ export default function Login({}) {
         radius="xl" 
         p="xl" 
         style={{ 
-          width: 420, 
+          width: '100%',
+          maxWidth: 420, 
           textAlign: 'center',
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(10px)',

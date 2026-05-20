@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { TextInput, PasswordInput, Button, Group, Text, Stack, Container, Title, Paper } from '@mantine/core';
+import { TextInput, PasswordInput, Button, Group, Text, Stack, Container, Title, Paper, Menu } from '@mantine/core';
 import { Link, useNavigate } from 'react-router-dom';
 import { IconUser, IconLock, IconLogout, IconArrowLeft, IconUpload } from '@tabler/icons-react';
 
@@ -87,6 +87,32 @@ export default function Profile() {
     navigate('/', { replace: true });
   };
 
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 639px) {
+        .mobile-only {
+          display: block !important;
+        }
+        .desktop-only {
+          display: none !important;
+        }
+      }
+      @media (min-width: 640px) {
+        .mobile-only {
+          display: none !important;
+        }
+        .desktop-only {
+          display: flex !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
     <div style={{ 
       minHeight: '100vh',
@@ -119,7 +145,8 @@ export default function Profile() {
               </Text>
             </div>
           </div>
-          <Group spacing="md">
+          {/* Desktop Navigation */}
+          <Group spacing="md" className="desktop-only">
             <Button 
               variant="subtle" 
               component={Link} 
@@ -148,6 +175,20 @@ export default function Profile() {
               Logout
             </Button>
           </Group>
+
+          {/* Mobile Navigation */}
+          <Menu position="bottom-end" shadow="md" className="mobile-only">
+            <Menu.Target>
+              <Button variant="subtle" size="sm" style={{ color: 'white', padding: '8px' }}>
+                <IconUser size={20} />
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item component={Link} to="/about">About</Menu.Item>
+              <Menu.Item component={Link} to="/list">List</Menu.Item>
+              <Menu.Item onClick={() => handleLogout()}>Logout</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </div>
       </header>
 

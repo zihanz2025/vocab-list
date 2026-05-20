@@ -5,10 +5,109 @@ import { supabase } from '../supabaseClient';
 import WordDetailModal from './WordDetailModal';
 import AddWordModal from './AddWordModal';
 import WordSearch from './SearchBar';
-import {Table, Paper, Button, Group, Text, Title, Stack, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid, Badge} from '@mantine/core';
+import {Table, Paper, Button, Group, Text, Title, Stack, Container, ScrollArea, ActionIcon, Tooltip, Select, Box, Grid, Badge, Menu, Burger} from '@mantine/core';
 import { IconEdit, IconTrash, IconPlus, IconBook2, IconUser, IconSettings, IconLogout } from '@tabler/icons-react';
 
 export default function Listview({onLogout}) {
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (min-width: 640px) {
+        .hide-on-mobile {
+          display: table-cell !important;
+        }
+        .hide-on-mobile-header {
+          display: table-cell !important;
+        }
+        thead tr.hide-on-mobile-header {
+          display: table-row !important;
+        }
+        .mobile-only {
+          display: none !important;
+        }
+        .mobile-only-header {
+          display: none !important;
+        }
+        .desktop-only {
+          display: flex !important;
+        }
+        .word-col {
+          width: 22% !important;
+          text-align: left !important;
+        }
+        .category-col {
+          width: 10% !important;
+          text-align: center !important;
+        }
+        .note-col {
+          width: 38% !important;
+          text-align: left !important;
+        }
+        .views-col {
+          width: 8% !important;
+          text-align: center !important;
+        }
+        .date-col {
+          width: 14% !important;
+          text-align: center !important;
+        }
+        .actions-col {
+          width: 8% !important;
+          text-align: center !important;
+        }
+      }
+      @media (max-width: 639px) {
+        .hide-on-mobile {
+          display: none !important;
+        }
+        .hide-on-mobile-header {
+          display: none !important;
+        }
+        .mobile-only {
+          display: table-cell !important;
+        }
+        .mobile-only-header {
+          display: table-cell !important;
+        }
+        .desktop-only {
+          display: none !important;
+        }
+        .word-col {
+          width: 65% !important;
+        }
+        .category-col {
+          width: 20% !important;
+        }
+        .actions-col {
+          width: 15% !important;
+          minWidth: '80px' !important;
+        }
+        .action-icon {
+          transform: scale(0.75);
+        }
+      }
+      @media (min-width: 768px) {
+        .mobile-only-lg {
+          display: none !important;
+        }
+        .desktop-only-lg {
+          display: flex !important;
+        }
+      }
+      @media (max-width: 767px) {
+        .mobile-only-lg {
+          display: flex !important;
+        }
+        .desktop-only-lg {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
   const [words, setWords] = useState([]);
   const [nickname, setNickname] = useState('');
   const [categories, setCategories] = useState({});
@@ -224,7 +323,8 @@ async function deleteWord(word) {
             </div>
           </div>
 
-          <Group spacing="md">
+          {/* Desktop Navigation */}
+          <Group spacing="md" className="desktop-only" style={{ display: 'none' }}>
             <Button 
               variant="subtle" 
               component={Link} 
@@ -254,6 +354,28 @@ async function deleteWord(word) {
               Logout
             </Button>
           </Group>
+
+          {/* Mobile Menu */}
+          <div className="mobile-only" style={{ display: 'none' }}>
+            <Menu position="bottom-end" shadow="md">
+              <Menu.Target>
+                <Button variant="subtle" size="sm" style={{ color: 'white', padding: '8px' }}>
+                  <IconSettings size={20} />
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item component={Link} to="/about">
+                  About
+                </Menu.Item>
+                <Menu.Item component={Link} to="/profile">
+                  Profile
+                </Menu.Item>
+                <Menu.Item onClick={() => handleLogout()}>
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </div>
         </div>
       </header>
 
@@ -275,7 +397,8 @@ async function deleteWord(word) {
             boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          {/* Desktop Filters */}
+          <div className="desktop-only-lg" style={{ display: 'none', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Select
                 value={`${sortField}-${sortOrder}`}
@@ -313,9 +436,8 @@ async function deleteWord(word) {
                 onClick={() => setAddingWord(true)}
                 size="sm"
                 style={{ 
-                  background: 'linear-gradient(135deg, #800020 0%, #A52A2A 100%)',
-                  boxShadow: '0 4px 14px 0 rgba(128, 0, 32, 0.4)',
-                  fontWeight: 600,
+                  background: '#800020',
+                  color: 'white',
                 }}
               >
                 <IconPlus size={16} style={{ marginRight: '6px' }} />
@@ -323,21 +445,82 @@ async function deleteWord(word) {
               </Button>
             </div>
           </div>
+
+          {/* Mobile Filters */}
+          <div className="mobile-only-lg" style={{ display: 'none', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '0.5rem' }}>
+            <Menu position="bottom-start" shadow="md">
+              <Menu.Target>
+                <Button variant="outline" size="sm" style={{ borderColor: '#800020', color: '#800020' }}>
+                  Filters
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <div style={{ padding: '0.5rem' }}>
+                  <Select
+                    value={`${sortField}-${sortOrder}`}
+                    onChange={(value) => {
+                      const [field, order] = value.split('-');
+                      setSortField(field);
+                      setSortOrder(order);
+                    }}
+                    data={[
+                      { value: 'created_at-desc', label: 'Date Added (Newest)' },
+                      { value: 'created_at-asc', label: 'Date Added (Oldest)' },
+                      { value: 'word-asc', label: 'Alphabetical (A–Z)' },
+                      { value: 'view_count-desc', label: 'Views (Most)' },
+                      { value: 'view_count-asc', label: 'Views (Least)' },
+                    ]}
+                    placeholder="Sort by"
+                    size="sm"
+                    style={{ marginBottom: '0.5rem', width: '100%' }}
+                  />
+                  <Select
+                    data={categoryOptions}
+                    value={selectedCategory}
+                    onChange={setSelectedCategory}
+                    style={{ width: '100%' }}
+                    placeholder="Filter by category"
+                    size="sm"
+                  />
+                </div>
+              </Menu.Dropdown>
+            </Menu>
+            
+            <div style={{ flex: 1 }}>
+              <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
+            </div>
+            
+            <Button 
+              onClick={() => setAddingWord(true)}
+              size="sm"
+              style={{ 
+                background: '#800020',
+                color: 'white',
+                padding: '8px',
+              }}
+            >
+              <IconPlus size={18} />
+            </Button>
+          </div>
           <div
           style={{
-            maxHeight: '550px',
+            maxHeight: '78vh',
+            minHeight: '300px',
             overflowY: 'auto',
             overflowX: 'hidden',
+            width: '100%',
+            flex: 1,
             }}>
-              <Table style={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+              <div style={{ overflowX: 'hidden', overflowY: 'visible', width: '100%' }}>
+              <Table style={{ borderCollapse: 'separate', borderSpacing: '0 8px', width: '100%', tableLayout: 'fixed' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Word</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Category</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Note</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Views</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Date Added</th>
-                    <th style={{ textAlign: 'center', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem' }}>Actions</th>
+                  <tr style={{ borderBottom: '2px solid #e2e8f0', display: 'none' }} className="hide-on-mobile-header">
+                    <th className="word-col" style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem', width: '22%', minWidth: '100px' }}>Word</th>
+                    <th className="category-col" style={{ textAlign: 'center', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem', width: '10%', minWidth: '60px' }}>Category</th>
+                    <th className="note-col" style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem', width: '40%' }}>Note</th>
+                    <th className="views-col" style={{ textAlign: 'center', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem', width: '8%' }}>Views</th>
+                    <th className="date-col" style={{ textAlign: 'center', padding: '12px 16px', fontWeight: 600, color: '#475569', fontSize: '0.875rem', width: '14%' }}>Date Added</th>
+                    <th className="actions-col" style={{ textAlign: 'center', padding: '12px 4px', fontWeight: 600, color: '#475569', fontSize: '0.875rem', width: '10%', minWidth: '80px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -359,7 +542,7 @@ async function deleteWord(word) {
                         }}
                         onClick={() => setHighlightedId(null)}
                       >
-                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                        <td className="word-col" style={{ padding: '16px', borderBottom: 'none', width: '65%', minWidth: '100px' }}>
                           <Text 
                             component="span"
                             sx={{ cursor: 'pointer' }}
@@ -378,7 +561,7 @@ async function deleteWord(word) {
                             {w.word}
                           </Text>
                         </td>
-                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                        <td className="category-col" style={{ padding: '16px', borderBottom: 'none', width: '10%', minWidth: '60px', textAlign: 'center' }}>
                           <Badge 
                             variant="light" 
                             color={isVerb ? 'purple' : 'blue'}
@@ -395,12 +578,12 @@ async function deleteWord(word) {
                             {cat?.abbreviation?.toLowerCase() || ''}
                           </Badge>
                         </td>
-                        <td style={{ padding: '16px', borderBottom: 'none', cursor: 'pointer', maxWidth: '300px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }} onClick={() => toggleRow(w.id)}>
+                        <td className="note-col" style={{ padding: '16px', borderBottom: 'none', cursor: 'pointer', width: '40%', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', display: 'none' }} className="hide-on-mobile-header" onClick={() => toggleRow(w.id)}>
                           <Text size="sm" c="neutral.6" style={{ lineHeight: '1.5' }}>
                             {expandedRows.has(w.id) ? w.notes : shortNote}
                           </Text>
                         </td>
-                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                        <td className="views-col" style={{ padding: '16px', borderBottom: 'none', width: '8%', display: 'none', textAlign: 'center' }} className="hide-on-mobile-header">
                           <Badge 
                             variant="outline" 
                             color="neutral"
@@ -409,41 +592,39 @@ async function deleteWord(word) {
                             {w.view_count}
                           </Badge>
                         </td>
-                        <td style={{ padding: '16px', borderBottom: 'none' }}>
+                        <td className="date-col" style={{ padding: '16px', borderBottom: 'none', width: '15%', display: 'none', textAlign: 'center' }} className="hide-on-mobile-header">
                           <Text size="sm" c="neutral.5" style={{ fontSize: '0.8125rem' }}>
                             {dateCreated}
                           </Text>
                         </td>
-                        <td style={{ padding: '16px', borderBottom: 'none', textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
-                          <Group justify="center" gap="0.5rem">
-                            <Tooltip label="Edit">
-                              <ActionIcon
-                                variant="light"
-                                onClick={() => setSelectedWord(w)}
-                                style={{ 
-                                  borderRadius: '8px',
-                                  hover: { backgroundColor: '#f1f5f9' },
-                                }}
-                              >
-                                <IconEdit size={16} color="#64748b" />
-                              </ActionIcon>
-                            </Tooltip>
-                            <Tooltip label="Delete">
-                              <ActionIcon
-                                variant="light"
-                                onClick={() => deleteWord(w)}
-                                style={{ borderRadius: '8px' }}
-                              >
-                                <IconTrash size={16} color="#ef4444" />
-                              </ActionIcon>
-                            </Tooltip>
-                          </Group>
+                        <td className="actions-col" style={{ padding: '16px 4px', borderBottom: 'none', width: '10%', minWidth: '80px', whiteSpace: 'nowrap', verticalAlign: 'middle' }}>
+                          <span className="action-icon" style={{ display: 'inline-block', marginRight: '4px', verticalAlign: 'middle' }}>
+                            <ActionIcon
+                              variant="light"
+                              onClick={() => setSelectedWord(w)}
+                              style={{ borderRadius: '8px' }}
+                              size="sm"
+                            >
+                              <IconEdit size={16} color="#64748b" />
+                            </ActionIcon>
+                          </span>
+                          <span className="action-icon" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                            <ActionIcon
+                              variant="light"
+                              onClick={() => deleteWord(w)}
+                              style={{ borderRadius: '8px' }}
+                              size="sm"
+                            >
+                              <IconTrash size={16} color="#ef4444" />
+                            </ActionIcon>
+                          </span>
                         </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </Table>
+              </div>
 
               {filteredWords.length === 0 && (
                 <div style={{ 
