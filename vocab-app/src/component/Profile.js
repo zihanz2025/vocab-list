@@ -172,7 +172,7 @@ export default function Profile() {
               style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}
             >
               <IconLogout size={16} style={{ marginRight: '6px' }} />
-              Logout
+              Log out
             </Button>
           </Group>
 
@@ -186,7 +186,7 @@ export default function Profile() {
             <Menu.Dropdown>
               <Menu.Item component={Link} to="/about">About</Menu.Item>
               <Menu.Item component={Link} to="/list">List</Menu.Item>
-              <Menu.Item onClick={() => handleLogout()}>Logout</Menu.Item>
+              <Menu.Item onClick={() => handleLogout()}>Log out</Menu.Item>
             </Menu.Dropdown>
           </Menu>
         </div>

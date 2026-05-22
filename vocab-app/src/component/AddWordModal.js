@@ -2,25 +2,45 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Modal, TextInput, Textarea, Select, Button, Group } from '@mantine/core';
 
-export default function AddWordModal({ categories, onClose, onAdded }) {
+export default function AddWordModal({ categories, onClose, onAdded, allWords }) {
   const [word, setWord] = useState('');
   const [notes, setNotes] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleAdd = async () => {
-    if (!word || !categoryId) return;
+    const trimmedWord = word.trim();
+    if (!trimmedWord) return;
 
+    const existingWords = allWords || [];
+    const isDuplicate = existingWords.some(
+      (w) => w.word.toLowerCase() === trimmedWord.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      setError(`"${trimmedWord}" already exists in your vocabulary list!`);
+      return;
+    }
+
+    if (!categoryId) {
+      setError('Please select a category.');
+      return;
+    }
+
+    setError('');
     setLoading(true);
-    const { error } = await supabase.from('user_words').insert([{
-      word,
+    const { error: dbError } = await supabase.from('user_words').insert([{
+      word: trimmedWord,
       category_id: Number(categoryId),
       notes
     }]);
     setLoading(false);
 
-    if (error) console.log(error);
-    else {
+    if (dbError) {
+      console.log(dbError);
+      setError('Failed to add word. Please try again.');
+    } else {
       if (onAdded) onAdded();
       onClose();
     }
@@ -39,7 +59,10 @@ export default function AddWordModal({ categories, onClose, onAdded }) {
       <TextInput
         placeholder="Enter the word"
         value={word}
-        onChange={(e) => setWord(e.currentTarget.value)}
+        onChange={(e) => {
+          setWord(e.currentTarget.value);
+          setError('');
+        }}
         mb="md"
       />
       <Select
@@ -61,6 +84,19 @@ export default function AddWordModal({ categories, onClose, onAdded }) {
         maxRows={20}
         mb="md"
       />
+      {error && (
+        <div style={{ 
+          padding: '12px 16px', 
+          backgroundColor: '#fef2f2', 
+          border: '1px solid #fecaca', 
+          borderRadius: '8px', 
+          color: '#991b1b',
+          marginBottom: '1rem',
+          fontSize: '0.875rem'
+        }}>
+          {error}
+        </div>
+      )}
       <Group position="right">
         <Button onClick={handleAdd} loading={loading}>
           Add

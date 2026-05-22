@@ -118,6 +118,7 @@ export default function Listview({onLogout}) {
   const [sortField, setSortField] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchFilter, setSearchFilter] = useState('');
   const scrollAreaRef = useRef(null);
   const rowRefs = useRef({});
   const navigate = useNavigate();
@@ -173,18 +174,25 @@ export default function Listview({onLogout}) {
   categoryOptions.sort((a, b) => a.label.localeCompare(b.label, 'fr'));
   categoryOptions.unshift({ value: 'all', label: 'All Words' });
   const filteredWords = (() => {
-  if (selectedCategory === 'all') return words;
-  if (selectedCategory === 'noms') {
-    return words.filter((w) => {
-      const cat = categories[w.category_id]?.name?.toLowerCase();
-      return cat && cat.includes('nom') && cat !=='prenom';
-    });
+  let result = words;
+  if (searchFilter.trim()) {
+    result = result.filter((w) =>
+      w.word.toLowerCase().includes(searchFilter.toLowerCase())
+    );
   }
-
-  return words.filter((w) => {
+  if (selectedCategory === 'all') return result;
+  if (selectedCategory === 'noms') {
+    result = result.filter((w) => {
+      const cat = categories[w.category_id]?.name?.toLowerCase();
+      return cat && cat.includes('nom') && cat !== 'prenom';
+    });
+    return result;
+  }
+  result = result.filter((w) => {
     const cat = categories[w.category_id]?.name?.toLowerCase();
     return cat === selectedCategory;
   });
+  return result;
 })();
 
 
@@ -242,6 +250,7 @@ export default function Listview({onLogout}) {
 
 
   async function locateWord(wordToFind, options = {}) {
+    setSearchFilter('');
     const target = words.find(
     (w) => w.word.toLowerCase() === wordToFind.toLowerCase()
   );
@@ -351,7 +360,7 @@ async function deleteWord(word) {
               style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}
             >
               <IconLogout size={16} style={{ marginRight: '6px' }} />
-              Logout
+              Log out
             </Button>
           </Group>
 
@@ -371,7 +380,7 @@ async function deleteWord(word) {
                   Profile
                 </Menu.Item>
                 <Menu.Item onClick={() => handleLogout()}>
-                  Logout
+                  Log out
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -430,7 +439,7 @@ async function deleteWord(word) {
 
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, minWidth: '200px', marginLeft: '1.5rem' }}>
               <div style={{ flex: 1 }}>
-                <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
+                <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} onFilterBySearch={setSearchFilter} />
               </div>
               <Button 
                 onClick={() => setAddingWord(true)}
@@ -487,7 +496,7 @@ async function deleteWord(word) {
             </Menu>
             
             <div style={{ flex: 1 }}>
-              <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} />
+              <WordSearch words={filteredWords} allWords={words} onLocateWord={locateWord} onFilterBySearch={setSearchFilter} />
             </div>
             
             <Button 
@@ -503,6 +512,7 @@ async function deleteWord(word) {
             </Button>
           </div>
           <div
+          ref={scrollAreaRef}
           style={{
             maxHeight: '78vh',
             minHeight: '300px',
@@ -655,6 +665,7 @@ async function deleteWord(word) {
           categories={categories}
           onClose={() => setAddingWord(false)}
           onAdded={refreshWords}
+          allWords={words}
         />
       )}
       </Container>
