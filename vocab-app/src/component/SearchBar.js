@@ -2,35 +2,44 @@ import { useState } from 'react';
 import { Autocomplete, CloseButton } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 
+function normalizeString(str) {
+  if (typeof str !== 'string') return '';
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
 export default function WordSearch({ words, allWords, onLocateWord, onFilterBySearch }) {
   const [value, setValue] = useState('');
 
-  const safeWords = words || [];
-  const safeAllWords = allWords || [];
+  const safeWords = Array.isArray(words) ? words : [];
+  const safeAllWords = Array.isArray(allWords) ? allWords : [];
+
+  const normalizedValue = normalizeString(value);
 
   const filteredWords = safeWords
-    .filter((w) => w.word.toLowerCase().includes(value.toLowerCase()))
+    .filter((w) => normalizeString(w.word).includes(normalizedValue))
     .map((w) => w.word);
 
   const hasExactMatchInCurrent = safeWords.some(
-    (w) => w.word.toLowerCase() === value.toLowerCase()
+    (w) => normalizeString(w.word) === normalizedValue
   );
 
   const existsInAll = safeAllWords.some(
-    (w) => w.word.toLowerCase() === value.toLowerCase()
+    (w) => normalizeString(w.word) === normalizedValue
   );
 
-  const data =
-    value.trim() === ''
-      ? []
-      : hasExactMatchInCurrent
-      ? filteredWords
-      : existsInAll
-      ? [...filteredWords, `→ Locate "${value}" in all words`]
-      : [...filteredWords, `→ Search "${value}" on WordReference`];
+  const data = value.trim() === '' ? [] : (() => {
+    const suggestions = filteredWords.slice(0, 6);
+    if (hasExactMatchInCurrent) {
+      return suggestions;
+    }
+    if (existsInAll) {
+      return [...suggestions, `→ Locate "${value}" in all words`];
+    }
+    return [...suggestions, `→ Search "${value}" on WordReference`];
+  })();
 
   const handleSearch = () => {
-    const match = safeWords.find((w) => w.word.toLowerCase() === value.toLowerCase());
+    const match = safeWords.find((w) => normalizeString(w.word) === normalizedValue);
     if (match) {
       onLocateWord(match.word, { overrideFilter: false });
     }
@@ -57,8 +66,17 @@ export default function WordSearch({ words, allWords, onLocateWord, onFilterBySe
       value={value}
       onChange={handleChange}
       data={data}
+      filter={({ options, search, limit }) => {
+        const normalizedSearch = normalizeString(search);
+        return options
+          .filter((option) => {
+            const val = option?.label || option?.value || '';
+            return normalizeString(val).includes(normalizedSearch);
+          })
+          .slice(0, limit);
+      }}
       limit={6}
-      nothingFound={value.trim() ? `Press Enter to filter by "${value.trim()}"` : 'No matches'}
+      nothingFound="Press Enter to filter"
       style={{ width: '100%' }}
       rightSection={value ? (
         <CloseButton
@@ -84,7 +102,7 @@ export default function WordSearch({ words, allWords, onLocateWord, onFilterBySe
       onOptionSubmit={(option) => {
         if (option.startsWith('→ Locate')) {
           const match = safeAllWords.find(
-            (w) => w.word.toLowerCase() === value.toLowerCase()
+            (w) => normalizeString(w.word) === normalizedValue
           );
           if (match) onLocateWord(match.word, { overrideFilter: true });
         } else if (option.startsWith('→ Search')) {
@@ -93,7 +111,7 @@ export default function WordSearch({ words, allWords, onLocateWord, onFilterBySe
             '_blank'
           );
         } else {
-          const match = safeWords.find((w) => w.word === option);
+          const match = safeWords.find((w) => normalizeString(w.word) === normalizeString(option));
           if (match) onLocateWord(match.word, { overrideFilter: false });
         }
       }}

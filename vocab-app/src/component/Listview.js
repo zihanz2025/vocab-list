@@ -173,11 +173,18 @@ export default function Listview({onLogout}) {
   ];
   categoryOptions.sort((a, b) => a.label.localeCompare(b.label, 'fr'));
   categoryOptions.unshift({ value: 'all', label: 'All Words' });
+
+  function normalizeString(str) {
+    if (typeof str !== 'string') return '';
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
   const filteredWords = (() => {
   let result = words;
   if (searchFilter.trim()) {
+    const normalizedFilter = normalizeString(searchFilter);
     result = result.filter((w) =>
-      w.word.toLowerCase().includes(searchFilter.toLowerCase())
+      normalizeString(w.word).includes(normalizedFilter)
     );
   }
   if (selectedCategory === 'all') return result;
